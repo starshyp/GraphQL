@@ -5,8 +5,34 @@
 var express = require('express');
 var { graphqlHTTP } = require('express-graphql');
 var { buildSchema } = require('graphql');
-var mysql = require('./app.js')
-var pg = require('./app.js')
+var mysql = require('./mysql.js')
+var pg = require('./postgres.js')
+
+scalar DateTime
+
+import { GraphQLScalarType } from 'graphql';
+import { Kind } from 'graphql/language';
+
+const resolverMap = {
+    DateTime: new GraphQLScalarType({
+        name: 'DateTime',
+        description: 'Date custom scalar type',
+        parseValue(value) {
+            return new Date(value); // value from the client
+        },
+        serialize(value) {
+            return value.getTime(); // value sent to the client
+        },
+        parseLiteral(ast) {
+            if (ast.kind === Kind.INT) {
+                return parseInt(ast.value, 10); // ast value is always in string format
+            }
+            return null;
+        },
+    }),
+}
+
+
 
 // Construct a schema, using GraphQL schema language
 var schema = buildSchema(`
@@ -15,10 +41,7 @@ var schema = buildSchema(`
     rollDice(numDice: Int!, numSides: Int): [Int]
     
     getBuildings(id: Int): Building
-    getAddresses(id: Int): Address
     getCustomers(id: Int): Customer
-    getEmployees(id: Int): Employee
-    getBuilding_details(id: Int): Building_Detail
     getInterventions(id: Int): Intervention
   }
   type Building {
@@ -86,40 +109,43 @@ var schema = buildSchema(`
     id: Int!
   }
   type Intervention {
-    employee: Employee
-    building: Building
-    building_details: Building_Detail
-    begin_date_time: DateTime
+    employee_id: Int!
+    building_id: Int!
+    building_details: [Building_Detail]
+    begin_date_time: DateTime!
     end_date_time: DateTime
+    result: String!
+    report: String
+    status: String!
+    id: Int!
   }
 `);
 
-///////EXAMPLE OF INPUT
-// input UserInput {
-//     Name: String
-//     Posts: [PostInput]
-// }
-//
-// input PostInput {
-//     Text: String
-// }
-
 // The root provides a resolver function for each API endpoint
-
-//////EXAMPLE
 var root = {
-    getBuildings: ({id}) => {
-        var building = await query(
-            `SELECT * FROM buildings WHERE id = ?`, [id]
+    getBuildings: async ({id}) => {
+        var building = await mysql(
+            `SELECT * FROM buildings WHERE id = `, [id]
         )
-        return buildings;
+        return getBuildings;
+    },
+    getCustomers: async ({id}) => {
+        var customer = await mysql(
+            `SELECT * FROM customers WHERE id = ?`, [id]
+        )
+        return getCustomers;
+    },
+    getInterventions: async ({id}) => {
+        var intervention = await mysql(
+            `SELECT * FROM factintervention WHERE id = ?`, [id]
+        )
+        return getInterventions;
     }
 }
 
 // Retrieving the address of the building, the beginning and the end of the intervention for a specific intervention.
 //     Retrieving customer information and the list of interventions that took place for a specific building
 // Retrieval of all interventions carried out by a specified employee with the buildings associated with these interventions including the details (Table BuildingDetails) associated with these buildings.
-
 
 // exports.getUser = async (client, uuid) => {
 //     var user = {};
@@ -136,30 +162,40 @@ var root = {
 //     return user;
 // }
 
+///////EXAMPLE OF INPUT
+// input UserInput {
+//     Name: String
+//     Posts: [PostInput]
+// }
+//
+// input PostInput {
+//     Text: String
+// }
+
 //////EXAMPLE
-var root = {
-    rollDice: ({numDice, numSides}) => {
-        var output = [];
-        for (var i = 0; i < numDice; i++) {
-            output.push(1 + Math.floor(Math.random() * (numSides || 6)));
-        }
-        return output;
-    }
-};
+// var root = {
+//     rollDice: ({numDice, numSides}) => {
+//         var output = [];
+//         for (var i = 0; i < numDice; i++) {
+//             output.push(1 + Math.floor(Math.random() * (numSides || 6)));
+//         }
+//         return output;
+//     }
+// };
 
 
 
 //////EXAMPLE - mutations
-var fakeDatabase = {};
-var root = {
-    setMessage: ({message}) => {
-        fakeDatabase.message = message;
-        return message;
-    },
-    getMessage: () => {
-        return fakeDatabase.message;
-    }
-};
+// var fakeDatabase = {};
+// var root = {
+//     setMessage: ({message}) => {
+//         fakeDatabase.message = message;
+//         return message;
+//     },
+//     getMessage: () => {
+//         return fakeDatabase.message;
+//     }
+// };
 
 var app = express();
 app.use('/graphql', graphqlHTTP({
@@ -306,32 +342,3 @@ console.log('Running a GraphQL API server at http://localhost:4000/graphql');
 //     });
 
 ///////////////////////////////////////////////////
-
-
-// Retrieving the address of the building, the beginning and the end of the intervention for a specific intervention.
-//     Retrieving customer information and the list of interventions that took place for a specific building
-// Retrieval of all interventions carried out by a specified employee with the buildings associated with these interventions including the details (Table BuildingDetails) associated with these buildings.
-
-
-scalar DateTime
-
-import { GraphQLScalarType } from 'graphql';
-import { Kind } from 'graphql/language';
-
-const resolverMap = {
-    DateTime: new GraphQLScalarType({
-        name: 'DateTime',
-        description: 'Date custom scalar type',
-        parseValue(value) {
-            return new Date(value); // value from the client
-        },
-        serialize(value) {
-            return value.getTime(); // value sent to the client
-        },
-        parseLiteral(ast) {
-            if (ast.kind === Kind.INT) {
-                return parseInt(ast.value, 10); // ast value is always in string format
-            }
-            return null;
-        },
-    }),
