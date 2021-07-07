@@ -8,39 +8,37 @@ var { buildSchema } = require('graphql');
 var mysql = require('./mysql.js')
 var pg = require('./postgres.js')
 
-scalar DateTime
-
-import { GraphQLScalarType } from 'graphql';
-import { Kind } from 'graphql/language';
-
-const resolverMap = {
-    DateTime: new GraphQLScalarType({
-        name: 'DateTime',
-        description: 'Date custom scalar type',
-        parseValue(value) {
-            return new Date(value); // value from the client
-        },
-        serialize(value) {
-            return value.getTime(); // value sent to the client
-        },
-        parseLiteral(ast) {
-            if (ast.kind === Kind.INT) {
-                return parseInt(ast.value, 10); // ast value is always in string format
-            }
-            return null;
-        },
-    }),
-}
-
-
+// import { GraphQLScalarType } from 'graphql';
+// import { Kind } from 'graphql/language';
+//
+// const resolverMap = {
+//     DateTime: new GraphQLScalarType({
+//         name: 'DateTime',
+//         description: 'Date custom scalar type',
+//         parseValue(value) {
+//             return new Date(value); // value from the client
+//         },
+//         serialize(value) {
+//             return value.getTime(); // value sent to the client
+//         },
+//         parseLiteral(ast) {
+//             if (ast.kind === Kind.INT) {
+//                 return parseInt(ast.value, 10); // ast value is always in string format
+//             }
+//             return null;
+//         },
+//     }),
+// }
 
 // Construct a schema, using GraphQL schema language
 var schema = buildSchema(`
+scalar DateTime
+
   type Query {
     hello: String
     rollDice(numDice: Int!, numSides: Int): [Int]
     
-    getBuildings(id: Int): Building
+    getBuildings(id: Int!): Building
     getCustomers(id: Int): Customer
     getInterventions(id: Int): Intervention
   }
@@ -123,29 +121,67 @@ var schema = buildSchema(`
 
 // The root provides a resolver function for each API endpoint
 var root = {
+
+    /////////// TESTING ///////////
     getBuildings: async ({id}) => {
-        var building = await mysql(
-            `SELECT * FROM buildings WHERE id = `, [id]
-        )
-        return getBuildings;
+        let ferrari = await mysql('SELECT * FROM buildings WHERE id =' + id);
+        console.log(ferrari);
+        //return ferrari;
     },
-    getCustomers: async ({id}) => {
-        var customer = await mysql(
-            `SELECT * FROM customers WHERE id = ?`, [id]
-        )
-        return getCustomers;
-    },
-    getInterventions: async ({id}) => {
-        var intervention = await mysql(
-            `SELECT * FROM factintervention WHERE id = ?`, [id]
-        )
-        return getInterventions;
+
+        hello: () => {
+        return 'Hello world!';
     }
+    //////////////////////////////
+
+    // // Retrieving the address of the building, the beginning and the end of the intervention for a specific intervention.
+    // getInterventions: async ({id}) => {
+    //     var bentley = await pg(
+    //         'SELECT * FROM factintervention WHERE id = ', [id]
+    //     )
+    //     console.log(bentley);
+    //
+    //     var huracan = await mysql(
+    //         'SELECT * FROM addresses JOIN buildings on buildings.address_id'
+    //     )
+    //     console.log(huracan)
+    //
+    //     return getInterventions;
+    // },
+    //
+    // //Retrieving customer information and the list of interventions that took place for a specific building
+    // getBuildings: async ({id}) => {
+    //     var ferrari = await mysql(
+    //         'SELECT * FROM buildings WHERE id = ', [id]
+    //     )
+    //     console.log(ferrari);
+    //     //return getBuildings;
+    //
+    //     var lambo  = await pg(
+    //         'SELECT * FROM factintervention WHERE building_id = ', [id]
+    //     )
+    //     console.log(lambo);
+    //
+    //     var jackiechan = await mysql(
+    //         'SELECT * FROM customers WHERE id = ', [id]
+    //     )
+    //     console.log(jackiechan);
+    //
+    //     return getBuildings;
+    // }
+
+    // Retrieval of all interventions carried out by a specified employee with the buildings associated with these interventions including the details (Table BuildingDetails) associated with these buildings.
+
+
+    // getCustomers: async ({id}) => {
+    //     var customer = await mysql(
+    //         `SELECT * FROM customers WHERE id = ?`, [id]
+    //     )
+    //     return getCustomers;
+    // },
+
 }
 
-// Retrieving the address of the building, the beginning and the end of the intervention for a specific intervention.
-//     Retrieving customer information and the list of interventions that took place for a specific building
-// Retrieval of all interventions carried out by a specified employee with the buildings associated with these interventions including the details (Table BuildingDetails) associated with these buildings.
 
 // exports.getUser = async (client, uuid) => {
 //     var user = {};
