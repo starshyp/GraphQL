@@ -38,10 +38,24 @@ scalar DateTime
     hello: String
     rollDice(numDice: Int!, numSides: Int): [Int]
     
+    getContacts(id: Int!): Fact_Contact
+    getEmployees(id: Int!): Employee
     getBuildings(id: Int!): Building
     getCustomers(id: Int): Customer
     getInterventions(id: Int): Intervention
   }
+  
+  type Fact_Contact {
+    ContactId: Int
+    CreationDate: DateTime
+    CompanyName: String
+    Email: String
+    ProjectName: String
+  }
+  
+  
+  
+  
   type Building {
     FullNameOfTheBuildingAdministrator: String
     EmailOfTheAdministratorOfTheBuilding: String
@@ -124,14 +138,31 @@ var root = {
 
     /////////// TESTING ///////////
     getBuildings: async ({id}) => {
-        let ferrari = await mysql('SELECT * FROM buildings WHERE id =' + id);
-        console.log(ferrari);
-        //return ferrari;
+        console.log(id)
+        let ferrari = await mysql('SELECT * FROM buildings where id =1');
+        console.log(await ferrari);
+        return ferrari[0];
+    },
+
+    getContacts: async ({id}) => {
+        console.log(id)
+        let contact1 = await pg('SELECT * FROM fact_contacts where id=1');
+        console.log(await contact1)
+        console.log("TEST//////////////////")
+        return contact1[0];
+
     },
 
         hello: () => {
         return 'Hello world!';
     }
+
+    // getEmployees: async ({id}) => {
+    //     var employees = await mysql(`SELECT * FROM employees WHERE id = ` + id);
+    //     resolve = employees[0];
+    //     console.log(employees);
+    // }
+
     //////////////////////////////
 
     // // Retrieving the address of the building, the beginning and the end of the intervention for a specific intervention.
