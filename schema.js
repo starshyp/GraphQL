@@ -3,6 +3,8 @@
 //const { ApolloServer, gql } = require('apollo-server-express');
 
 var express = require('express');
+// const app = express();
+// let port = process.env.PORT || 4000;
 var { graphqlHTTP } = require('express-graphql');
 var { buildSchema } = require('graphql');
 var mysql = require('./mysql.js');
