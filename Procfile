@@ -1,1 +1,1 @@
-web: node schema.js
+web: npm start
