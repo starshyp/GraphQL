@@ -4,7 +4,7 @@
 
 var express = require('express');
 // const app = express();
-// let port = process.env.PORT || 4000;
+//let port = process.env.PORT || 4000;
 var { graphqlHTTP } = require('express-graphql');
 var { buildSchema } = require('graphql');
 var mysql = require('./mysql.js');
@@ -147,7 +147,7 @@ var root = {
     // /////////// TESTING ///////////
     // getBuildings: async ({id}) => {
     //     console.log(id)
-    //     let ferrari = await mysql('SELECT * FROM buildings where id =1');
+    //     let ferrari = await mysql('SELECT * FROM buildings where id = ' + id);
     //     console.log(await ferrari);
     //     return ferrari[0];
     // },
@@ -315,7 +315,7 @@ app.use('/graphql', graphqlHTTP({
     rootValue: root,
     graphiql: true,
 }));
-app.listen(4000);
+app.listen(process.env.PORT || 4000);
 console.log('Running a GraphQL API server at http://localhost:4000/graphql');
 
 //////////////////////////////////
