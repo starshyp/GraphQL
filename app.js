@@ -17,9 +17,9 @@
 // var mysql      = require('mysql');
 // var connection = mysql.createConnection({
 //     host     : 'localhost',
-//     user     : 'root',
-//     password : 'codeboxx',
-//     database : 'rocket_development'
+//     user     : '-',
+//     password : '-',
+//     database : '-'
 // });
 //
 // connection.connect();
@@ -36,7 +36,7 @@
 // const client = new Client({
 //     host: 'localhost',
 //     port: 5334,
-//     user: 'postgres',
-//     password: 'codeboxx',
-//     database: 'datawarehouse_development'
+//     user: '-',
+//     password: '-',
+//     database: '-'
 // })

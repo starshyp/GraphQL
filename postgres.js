@@ -1,18 +1,19 @@
+require('dotenv').config();
 const { Client } = require('pg')
 
 const client = new Client({
     host: 'localhost',
     port: 5432,
-    user: 'postgres',
-    password: 'codeboxx',
-    database: 'datawarehouse_development'
+    user     : process.env.PG_USER,
+    password : process.env.PG_PASS,
+    database : process.env.PG_DB
 })
 
 client.connect(err => {
     if (err) {
-        console.error('connection error', err.stack)
+        console.error('PG connection error...', err.stack)
     } else {
-        console.log('connected')
+        console.log('PG connected.')
     }
 })
 
@@ -37,7 +38,7 @@ function query(queryString, params) {
     return new Promise((resolve, reject) => {
         client.query(queryString, params, function(err, result) {
             if (err) {
-                return reject(err);
+                return reject(err.stack);
             }
             return resolve(result.rows)
         });

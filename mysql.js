@@ -1,19 +1,20 @@
+require('dotenv').config();
 const mysql      = require('mysql');
 
 const connection = mysql.createConnection({
     host     : 'localhost',
     port     : '3306',
-    user     : 'codeboxx',
-    password : 'codeboxx',
-    database : 'rocket_development'
+    user     : process.env.MYSQL_USER,
+    password : process.env.MYSQL_PASS,
+    database : process.env.MYSQL_DB
 });
 
 // var pool  = mysql.createPool({
 //     connectionLimit : 10,
 //     host            : 'localhost',
-//     user            : 'codeboxx',
-//     password        : 'codeboxx',
-//     database        : 'rocket_development'
+//     user            : '-',
+//     password        : '-',
+//     database        : '-'
 // });
 
 connection.connect();
@@ -52,6 +53,7 @@ function query(queryString, params) {
             if (err) {
                 return reject(err);
             }
+            console.log("MySql connected.")
             return resolve(result)
         });
     })
