@@ -1,7 +1,7 @@
 require('dotenv').config();
-const mysql      = require('mysql');
+var mysql      = require('mysql');
 
-const connection = mysql.createConnection({
+var connection = mysql.createConnection({
     host     : process.env.MYSQL_HOST,
     port     : process.env.MYSQL_PORT,
     user     : process.env.MYSQL_USER,
@@ -53,9 +53,9 @@ connection.connect();
 function query(queryString, params) {
     return new Promise((resolve, reject) => {
         connection.query(queryString, params, function(err, result) {
-            // if (err) {
-            //     return reject(err);
-            // }
+            if (err) {
+                return reject(err);
+            }
             console.log("MySql connected.")
             return resolve(result)
         });
