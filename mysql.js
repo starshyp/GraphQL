@@ -53,9 +53,9 @@ connection.connect();
 function query(queryString, params) {
     return new Promise((resolve, reject) => {
         connection.query(queryString, params, function(err, result) {
-            if (err) {
-                return reject(err);
-            }
+            // if (err) {
+            //     return reject(err);
+            // }
             console.log("MySql connected.")
             return resolve(result)
         });
