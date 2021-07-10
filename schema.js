@@ -43,9 +43,9 @@ scalar DateTime
     getContacts(id: Int!): Fact_Contact
     getCustomerInfo(id: Int): Building
     
-    getEmployeeInfo(id: Int!): Employee
-    getBuildingInfo(id: Int!): Building
-    getAddressInfo(id: Int): Fact_Contact
+    employees(id: Int!): Employee
+    buildings(id: Int!): Building
+    interventions(id: Int): Intervention
   }
   
   type Fact_Contact {
@@ -125,14 +125,14 @@ scalar DateTime
     id: Int!
   }
   type Intervention {
-    employee_id: Int!
-    building_id: Int!
-    battery_id: Int
-    column_id: Int
-    elevator_id: Int
+    employeeid: Int!
+    buildingid: Int!
+    batteryid: Int
+    columnid: Int
+    elevatorid: Int
     building_details: [Building_Detail]
-    begin_date_time: DateTime!
-    end_date_time: DateTime
+    start_date: DateTime!
+    end_date: DateTime
     result: String!
     report: String
     status: String!
@@ -167,9 +167,9 @@ var root = {
     // /////////////////////////////////
 
     // Retrieving the address of the building, the beginning and the end of the intervention for a specific intervention.
-    getAddressInfo: async ({id}) => {
+    interventions: async ({id}) => {
         var bentley = await pg(
-            'SELECT * FROM fact_contacts WHERE id = ' + id //CHANGE TO FACTINTERVENTION WHEN IT'S DONE
+            'SELECT * FROM factintervention WHERE id = ' + id
         )
         console.log("bentley >>>>>>>>>>>>>")
         console.log(bentley);
@@ -177,7 +177,7 @@ var root = {
         //return bentley[0]
 
         var huracan = await mysql(
-            'SELECT * FROM addresses JOIN buildings on buildings.address_id = addresses.id WHERE buildings.id = ' + supercar.ContactId
+            'SELECT * FROM addresses JOIN buildings on buildings.address_id = addresses.id WHERE buildings.id = ' + supercar.buildingid
         )
         console.log("huracan >>>>>>>>>>>>>")
         console.log(huracan)
@@ -189,7 +189,7 @@ var root = {
     },
 
     //Retrieving customer information and the list of interventions that took place for a specific building
-    getCustomerInfo: async ({id}) => {
+    buildings: async ({id}) => {
         var ferrari = await mysql(
             'SELECT * FROM buildings WHERE id = ' + id
         )
@@ -199,18 +199,19 @@ var root = {
         //return getBuildings;
 
         var lambo  = await pg(
-            'SELECT * FROM fact_contacts WHERE id = ' + id //CHANGE TO FACTINTERVENTION WHEN IT'S DONE
+            'SELECT * FROM factintervention WHERE buildingid = ' + id
         )
         console.log("lambo >>>>>>>>>>>>>>>")
         console.log(lambo);
-        supercar["fact_contact"] = lambo
+        //supercar["factintervention"] = lambo
 
-        // var bugatti = await mysql(
-        //     'SELECT * FROM customers WHERE id = ' + supercar.ContactId //MODIFY
-        // )
-        // console.log("bugatti >>>>>>>>>>>>>")
-        // console.log(bugatti);
-        // supercar["customer"] = bugatti[0]
+        var bugatti = await mysql(
+            'SELECT * FROM customers WHERE id = ' + supercar.customer_id
+        )
+        console.log("bugatti >>>>>>>>>>>>>")
+        console.log(bugatti);
+        supercar["customer"] = bugatti[0]
+        supercar["interventions"] = lambo
 
         console.log("///////// FINISH LINE /////////")
         return supercar;
@@ -218,43 +219,45 @@ var root = {
     },
 
     // Retrieval of all interventions carried out by a specified employee with the buildings associated with these interventions including the details (Table BuildingDetails) associated with these buildings.
-
+    //
     // buildings >> building details >>= interventions >>= employees
 
-    // getEmployeeInfo: async ({id}) => {
-    //     var lotus = await pg(
-    //         'SELECT * FROM fact_contacts WHERE employees_id = ' + id
-    //     )
-    //     console.log("lotus >>>>>>>>>>>>>");
-    //     console.log(lotus);
-    //     supercar = lotus[0]
-    //
-    //     var rollsroyce = await mysql(
-    //         'SELECT * FROM buildings WHERE id = ' + id
-    //     )
-    //     console.log("rolls royce >>>>>>>>>>>>");
-    //     console.log(rollsroyce);
-    //     supercar = rollsroyce[0]
-    //
-    //
-    //     var b;
-    //     var maybach = await mysql(
-    //         'SELECT * FROM building_details WHERE id = building_id ' + id
-    //     )
-    //     console.log("maybach >>>>>>>>>>>>>");
-    //     console.log(maybach);
-    //     supercar = maybach[0]
-    //
-    //     var porsche = await mysql (
-    //         'SELECT * FROM employees WHERE id ' + id
-    //     )
-    //     console.log("porsche >>>>>>>>>>>>>");
-    //     console.log(porsche);
-    //     supercar = porsche[0]
-    //
-    //     console.log("///////// FINISH LINE /////////")
-    //     return supercar;
-    // }
+    employees: async ({id}) => {
+        var porsche = await mysql (
+            'SELECT * FROM employees WHERE id = ' + id
+        )
+        console.log("porsche >>>>>>>>>>>>>");
+        console.log(porsche);
+        supercar = porsche[0]
+
+        var lotus = await pg(
+            'SELECT * FROM factintervention WHERE employeeid = ' + id //CHANGE
+        )
+        console.log("lotus >>>>>>>>>>>>>");
+        console.log(lotus);
+        supercar2 = lotus[0]
+
+        // var rollsroyce = await mysql(
+        //     'SELECT * FROM buildings WHERE id = ' + id
+        // )
+        // console.log("rolls royce >>>>>>>>>>>>");
+        // console.log(rollsroyce);
+        // supercar = rollsroyce[0]
+
+        let b;
+        for (b = 0; b < lotus.length; b++) {
+            var maybach = await mysql(
+                'SELECT * FROM building_details WHERE building_id = ' + lotus[b].buildingid
+            )
+            lotus[b]["building_details"] = maybach
+            console.log("maybach >>>>>>>>>>>>>");
+            console.log(maybach);
+        }
+        supercar["interventions"] = lotus
+
+        console.log("///////// FINISH LINE /////////")
+        return supercar;
+    }
 
 }
 
