@@ -12,19 +12,66 @@ You can go to the website (link above) and run the following queries:
 ####Question 1: 
 Retrieving the address of the building, the beginning and the end of the intervention for a specific intervention.
 ```json
-
+{
+  interventions(id: 6) {
+    buildingid
+    start_date
+    end_date
+    report
+    address {
+      NumberAndStreet
+      Apt
+      City
+      PostalCode
+    }
+  }
+}
 ```
 
 ####Question 2:
 Retrieving customer information and the list of interventions that took place for a specific building
 ```json
-
+{ 
+  buildings(id: 8) { 
+    FullNameOfTheBuildingAdministrator
+    FullNameOfTheTechContactForTheBuilding
+    EmailOfTheAdministratorOfTheBuilding
+    PhoneNumberOfTheBuildingAdministrator
+  	interventions {
+      buildingid
+    } 
+    customer { 
+      CompanyName
+    } 
+  } 
+}
 ```
 
 ####Question 3:
 Retrieval of all interventions carried out by a specified employee with the buildings associated with these interventions including the details (Table BuildingDetails) associated with these buildings.
 ```json
-
+{
+  employees(id: 4) {
+    Title
+    FirstName
+    LastName
+    Email
+      interventions {
+          employeeid
+          buildingid
+          start_date
+          end_date
+          result
+          report
+          status
+  building_details {
+      building_id
+      InformationKey
+      Value
+      }
+    }
+  }
+}
 ```
 
 ### Node modules installed and used
